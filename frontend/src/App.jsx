@@ -1,92 +1,166 @@
-import React, { useState } from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/themes/prism.css';
-import axios from 'axios';
-import './App.css';
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-function App() {
-  const [code, setCode] = useState(`import sys\nuser_input = sys.stdin.read().strip()\nprint(f'Hello, {user_input}')`);
-  const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
-
-  const handleSubmit = async () => {
-    const payload = {
-      language: 'python',
-      code,
-      input
-    };
-
+export default function App() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    password: "",
+  });
+  
+  const submitRegistration = async (e) => {
+    e.preventDefault();
     try {
-      const { data } = await axios.post(`http://localhost:8888/run`, payload);
-      console.log(data);
-      setOutput(data.output);
-    } catch (error) {
-      console.log(error.response);
+      const response = await axios.post("http://localhost:3333/register", formData);
+      console.log("response",response)
+      if (response.status === 200) {
+        navigate("/home"); 
+      } else {
+        console.error("Registration failed.");
+      }
+    } catch (err) {
+      console.error("Error submitting form:", err);
     }
-  }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   return (
-    <div className="container mx-auto py-8 flex flex-col lg:flex-row items-stretch">
-      {/* Left side: Compiler editor */}
-      <div className="lg:w-1/2 lg:pr-4 mb-4 lg:mb-0">
-        <h1 className="text-3xl font-bold mb-3">AlgoU Online Code Compiler</h1>
-        <div className="bg-gray-100 shadow-md w-full max-w-lg mb-4" style={{ height: '300px', overflowY: 'auto' }}>
-          <Editor
-            value={code}
-            onValueChange={code => setCode(code)}
-            highlight={code => highlight(code, languages.js)}
-            padding={10}
-            style={{
-              fontFamily: '"Fira code", "Fira Mono", monospace',
-              fontSize: 12,
-              outline: 'none',
-              border: 'none',
-              backgroundColor: '#f7fafc',
-              height: '100%',
-              overflowY: 'auto'
-            }}
+    <>
+      {/*
+        This example requires updating your template:
+
+        ```
+        <html class="h-full bg-white">
+        <body class="h-full">
+        ```
+      */}
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          <img
+            alt="Your Company"
+            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+            className="mx-auto h-10 w-auto"
           />
+          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+            Sign in to your account
+          </h2>
         </div>
 
-        {/* Run button */}
-        <button onClick={handleSubmit} type="button" className="w-full text-center mt-4 bg-gradient-to-br from-pink-500 to-orange-400 hover:from-pink-600 hover:to-orange-500 focus:outline-none text-white font-medium rounded-lg text-sm px-5 py-2.5">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 inline-block align-middle me-2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z" />
-          </svg>
-          Run
-        </button>
-      </div>
+        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          <form action="#" method="POST" className="space-y-6">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm/6 font-medium text-gray-900"
+              >
+                Email address
+              </label>
+              <div className="mt-2">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                  onChange={handleChange}
+                  value={formData.email}
+                />
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="password"
+                  className="block text-sm/6 font-medium text-gray-900"
+                >
+                  FirstName
+                </label>
+              </div>
+              <div className="mt-2">
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  required
+                  autoComplete="textfield"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                  onChange={handleChange}
+                  value={formData.firstName}
+                />
+              </div>
+            </div>
+            <div>
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm/6 font-medium text-gray-900"
+                >
+                  LastName
+                </label>
+              </div>
+              <div className="mt-2">
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  required
+                  autoComplete="textfield"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                  onChange={handleChange}
+                  value={formData.lastName}
+                />
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="password"
+                  className="block text-sm/6 font-medium text-gray-900"
+                >
+                  Password
+                </label>
+                <div className="text-sm">
+                  <a
+                    href="#"
+                    className="font-semibold text-indigo-600 hover:text-indigo-500"
+                  >
+                    Forgot password?
+                  </a>
+                </div>
+              </div>
+              <div className="mt-2">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                  onChange={handleChange}
+                  value={formData.password}
+                />
+              </div>
+            </div>
 
-      {/* Right side: Input and Output */}
-      <div className="lg:w-1/2 lg:pl-8 pt-10">
-        {/* Input textarea */}
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-2">Input</h2>
-          <textarea
-            rows='5'
-            cols='15'
-            value={input}
-            placeholder='Input'
-            onChange={(e) => setInput(e.target.value)}
-            className="border border-gray-300 rounded-sm py-1.5 px-4 mb-1 focus:outline-none focus:border-indigo-500 resize-none w-full"
-            style={{ minHeight: '100px' }}
-          ></textarea>
+            <div>
+              <button
+                type="submit"
+                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={(e) => submitRegistration(e)}
+              >
+                Sign in
+              </button>
+            </div>
+          </form>
         </div>
-
-        {/* Output box */}
-        {(
-          <div className="bg-gray-100 rounded-sm shadow-md p-4 h-28">
-            <h2 className="text-lg font-semibold mb-2">Output</h2>
-            <div style={{ fontFamily: '"Fira code", "Fira Mono", monospace', fontSize: 12 }}>{output}</div>
-          </div>
-        )}
       </div>
-    </div>
+    </>
   );
 }
-
-export default App;
