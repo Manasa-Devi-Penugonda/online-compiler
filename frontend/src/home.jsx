@@ -20,7 +20,7 @@ function Home() {
     };
 
     try {
-      const { data } = await axios.post(`http://localhost:8888/run`, payload);
+      const { data } = await axios.post(`http://localhost:3333/run`, payload);
       console.log(data);
       setOutput(data.output);
     } catch (error) {
