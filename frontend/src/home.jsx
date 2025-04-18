@@ -48,10 +48,11 @@ function Home() {
       language,
       code,
       input: inputVal,
+      problemId: question._id
     };
 
     const { data } = await axios.post(`http://localhost:3333/run`, payload);
-    return data.output;
+    return data.output || data.error;
   };
 
   const handleRun = async () => {

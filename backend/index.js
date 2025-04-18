@@ -80,19 +80,37 @@ app.post("/login", async (req, res) => {
 
 app.post("/run", async (req, res) => {
   try {
-    const { language, code, input } = req.body;
-    if (!code) return res.json({ message: "Code is required" });
+    const { language, code, input, problemId } = req.body;
+    if (!code || !problemId) return res.json({ message: "Code and problem ID are required" });
 
+    // Step 1: Find the problem and retrieve the time limit (if available)
+    const problem = await Problem.findById(problemId);
+    if (!problem) return res.json({ message: "Problem not found" });
+
+    const timeLimit = problem.timeLimit || 5000; // Default to 5000ms if time limit is not set
+
+    // Step 2: Generate file and input for the code execution
     const filepath = await generateFile(code, language);
     const inputFilePath = await generateInputFile(input);
-    const output = await executeCode(filepath, inputFilePath, language);
 
-    res.json({ filepath, inputFilePath, output });
+    // Step 3: Execute the code with the time limit
+    try {
+      const output = await executeCode(filepath, inputFilePath, language, timeLimit);
+      res.json({ output }); // Return the output of the execution
+    } catch (error) {
+      if (error.message === "⚠️ Time Limit Exceeded") {
+        return res.json({ error: "Time Limit Exceeded" });
+      } else {
+        return res.json({ error: error });
+      }
+    }
   } catch (error) {
-    console.error("Execution error:", error);
-    res.status(500).json({ error: error.toString() });
+    console.error("Error during code execution:", error);
+    res.json({ error: error.message });
   }
 });
+
+
 
 
 // =================== PROBLEMS ROUTE ===================
@@ -183,7 +201,11 @@ app.post("/submit", async (req, res) => {
 
     // Step 1: Find the problem and populate the testcases
     const problem = await Problem.findById(problemId).populate("testcases");
+
+    if (!problem) return res.json({ message: "Problem not found" });
+
     const hiddenTestCases = problem.testcases; // All the test cases are now available in 'testcases'
+    const timeLimit = problem.timeLimit; // Time limit for the specific problem
 
     // Step 2: Loop through all the hidden test cases
     let allPassed = true;
@@ -194,16 +216,28 @@ app.post("/submit", async (req, res) => {
       const filepath = await generateFile(code, language);
       const inputFilePath = await generateInputFile(inputs);
 
-      // Execute the code with the current input
-      const output = await executeCode(filepath, inputFilePath, language);
+      try {
+        // Execute the code with the current input and pass the specific time limit for this question
+        const output = await executeCode(filepath, inputFilePath, language, timeLimit);
 
-      // Normalize and compare the output with the expected result
-      const normalizedOutput = output.trim().replace(/\r?\n/g, '\n');
-      const normalizedExpectedOutput = outputs.join("\n").trim().replace(/\r?\n/g, '\n');
+        // Normalize and compare the output with the expected result
+        const normalizedOutput = output.trim().replace(/\r?\n/g, '\n');
+        const normalizedExpectedOutput = outputs.join("\n").trim().replace(/\r?\n/g, '\n');
 
-      if (normalizedOutput !== normalizedExpectedOutput) {
-        allPassed = false;
-        break; // Exit early if any test case fails
+        if (normalizedOutput !== normalizedExpectedOutput) {
+          allPassed = false;
+          break; // Exit early if any test case fails
+        }
+      } catch (error) {
+        if (error.message === "⚠️ Time Limit Exceeded") {
+          // If time limit is exceeded, mark the test as failed
+          allPassed = false;
+          break; // Exit early if time limit is exceeded
+        } else {
+          console.error("Error during test case execution:", error);
+          res.json({ error: error.message });
+          return; // Return if there is an unexpected error
+        }
       }
     }
 

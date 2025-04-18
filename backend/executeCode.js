@@ -1,7 +1,7 @@
 const { exec } = require("child_process");
 const path = require("path");
 
-const executeCode = async (filepath, inputFilePath, language) => {
+const executeCode = async (filepath, inputFilePath, language, timeout) => {
   return new Promise((resolve, reject) => {
     let command;
 
@@ -9,31 +9,38 @@ const executeCode = async (filepath, inputFilePath, language) => {
       case "python":
         command = `python ${filepath} < ${inputFilePath}`;
         break;
-
       case "cpp":
         const outputPath = filepath.replace(/\.cpp$/, "");
         command = `g++ ${filepath} -o ${outputPath} && ${outputPath} < ${inputFilePath}`;
         break;
-
       case "javascript":
         command = `node ${filepath} < ${inputFilePath}`;
         break;
-      
       case "java":
         const dir = path.dirname(filepath);
-        // Extract class name from file (e.g., Solution.java => Solution)
         const className = path.basename(filepath, ".java");
         command = `javac ${filepath} && java -cp "${dir}" ${className} < ${inputFilePath}`;
         break;
-
       default:
-        return reject(`Unsupported language: ${language}`);
+        return reject("Unsupported language");
     }
 
-    exec(command, (error, stdout, stderr) => {
-      if (error) return reject(`Execution error: ${error.message}`);
-      if (stderr) return reject(`Runtime error: ${stderr}`);
-      return resolve(stdout.trim());
+    exec(command, { timeout }, (error, stdout, stderr) => {
+      if (error) {
+        // ✅ Handle time limit exceeded
+        if (error.killed || error.signal === "SIGTERM") {
+          return reject(new Error("⚠️ Time Limit Exceeded"));
+        }
+
+        // Other execution error (like syntax/runtime error)
+        return reject(new Error(`Execution error: ${stderr || error.message}`));
+      }
+
+      if (stderr) {
+        return reject(new Error(`Runtime error: ${stderr}`));
+      }
+
+      resolve(stdout.trim());
     });
   });
 };
