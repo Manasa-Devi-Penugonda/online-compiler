@@ -17,7 +17,8 @@ export default function App() {
       const response = await axios.post("http://localhost:3333/register", formData);
       console.log("response",response)
       if (response.status === 200) {
-        navigate("/home"); 
+        alert("Registration successful! Please login.");
+        navigate("/login");
       } else {
         console.error("Registration failed.");
       }
