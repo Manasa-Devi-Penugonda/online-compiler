@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import "./home.css"; // Ensure this import is present
+import "./home.css";
 
-function Home() {
+function OnlineJudge() {
   const { id } = useParams();
   const [code, setCode] = useState(
     `import sys\nuser_input = sys.stdin.read().strip()\nprint(f'Hello, {user_input}')`
@@ -21,7 +21,7 @@ function Home() {
   useEffect(() => {
     const fetchQuestion = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:3333/problems/${id}`);
+        const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/problems/${id}`);
         setQuestion(data);
         setHiddenTestCases(data.hiddenTestCases || []);
         if (data.sampleInputs?.length > 0) {
@@ -36,23 +36,33 @@ function Home() {
   }, [id]);
 
   useEffect(() => {
-    if (language === 'python') {
+    if (language === "python") {
       setCode(`import sys\nuser_input = sys.stdin.read().strip()\nprint(f'Hello, {user_input}')`);
     } else {
-      setCode('');
+      setCode("");
     }
   }, [language]);
 
   const runUserCode = async (inputVal) => {
-    const payload = {
-      language,
-      code,
-      input: inputVal,
-      problemId: question._id
-    };
+    try {
+      const payload = {
+        language,
+        code,
+        input: inputVal,
+        problemId: question._id,
+      };
 
-    const { data } = await axios.post(`http://localhost:3333/run`, payload);
-    return data.output || data.error;
+      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/code/run`, payload);
+
+      if (data.error && Object.keys(data.error).length === 0) {
+        return "⚠️ Invalid language or error occurred while processing.";
+      }
+
+      return data.output || data.error || "⚠️ No output returned.";
+    } catch (err) {
+      console.error("Run Error:", err);
+      return "⚠️ Failed to run your code. Please try again.";
+    }
   };
 
   const handleRun = async () => {
@@ -60,37 +70,33 @@ function Home() {
     setIsRunning(true);
     setOutput("");
 
-    try {
-      const outputResult = await runUserCode(input);
-      setOutput(outputResult);
-      setSubmitResult(null);
-    } catch (error) {
-      console.log(error.response);
-      setOutput("⚠️ Error while running your code.");
-    } finally {
-      setIsRunning(false);
-    }
+    const result = await runUserCode(input);
+    setOutput(result);
+
+    setIsRunning(false);
   };
 
   const handleSubmit = async () => {
     setSubmitResult(null);
     setIsSubmitting(true);
+
     try {
-      const response = await axios.post(`http://localhost:3333/submit`, {
+      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/code/submit`, {
         code,
         language,
         problemId: question._id,
       });
 
-      const { result } = response.data;
-      if (result === "pass") {
+      if (data?.error && Object.keys(data.error).length === 0) {
+        setSubmitResult("❌ Invalid language or submission error.");
+      } else if (data?.result === "pass") {
         setSubmitResult("✅ All Test Cases Passed!");
       } else {
         setSubmitResult("❌ Some Test Cases Failed.");
       }
     } catch (err) {
-      setSubmitResult("❌ Error while running hidden tests");
-      console.log(err);
+      console.error("Submit Error:", err);
+      setSubmitResult("❌ Error while submitting code.");
     } finally {
       setIsSubmitting(false);
     }
@@ -99,7 +105,13 @@ function Home() {
   if (!question) return <p className="p-6 text-center">Loading problem...</p>;
 
   return (
-    <div className="min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('https://images.pexels.com/photos/1831234/pexels-photo-1831234.jpeg')" }}>
+    <div
+      className="min-h-screen bg-cover bg-center"
+      style={{
+        backgroundImage:
+          "url('https://images.pexels.com/photos/1831234/pexels-photo-1831234.jpeg')",
+      }}
+    >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
         {/* Left Panel */}
         <div className="bg-white p-5 rounded shadow-md space-y-4 border-l-4 border-blue-400">
@@ -180,7 +192,9 @@ function Home() {
             <button
               onClick={handleRun}
               disabled={isRunning}
-              className={`flex-1 py-2 rounded text-white ${isRunning ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"}`}
+              className={`flex-1 py-2 rounded text-white ${
+                isRunning ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"
+              }`}
             >
               {isRunning ? "Running..." : "Run"}
             </button>
@@ -188,7 +202,9 @@ function Home() {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className={`flex-1 py-2 rounded text-white ${isSubmitting ? "bg-green-300" : "bg-green-500 hover:bg-green-600"}`}
+              className={`flex-1 py-2 rounded text-white ${
+                isSubmitting ? "bg-green-300" : "bg-green-500 hover:bg-green-600"
+              }`}
             >
               {isSubmitting ? "Submitting..." : "Submit"}
             </button>
@@ -225,4 +241,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default OnlineJudge;

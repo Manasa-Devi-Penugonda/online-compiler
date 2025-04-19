@@ -1,8 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-export default function App() {
+export default function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
@@ -14,7 +13,8 @@ export default function App() {
   const submitRegistration = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3333/register", formData);
+      console.log("CONFIG.apiBaseUrl",import.meta.env.VITE_BACKEND_URL)
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, formData);
       if (response.status === 200) {
         alert("Registration successful! Please login.");
         navigate("/login");

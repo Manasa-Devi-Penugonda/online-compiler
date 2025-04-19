@@ -9,7 +9,7 @@ export default function QuestionsList() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await axios.get("http://localhost:3333/problems");
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/problems`);
         setQuestions(res.data);
       } catch (error) {
         console.error("Error fetching questions", error);

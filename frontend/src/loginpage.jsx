@@ -19,7 +19,7 @@ export default function Login() {
   const submitRegistration = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3333/login", formData);
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, formData);
       if (response.status === 200) {
         const token = response.data.token; // Adjust according to your API response structure
         localStorage.setItem("token", token); // Store the token in localStorage

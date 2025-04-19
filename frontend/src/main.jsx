@@ -1,9 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.jsx";
+import Register from "./Register.jsx";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./home.jsx";
+import OnlineJudge from "./onlineJudge.jsx";
 import Login from "./loginpage.jsx";
 import QuestionsList from "./questionsList.jsx";
 import ForgotPassword from "./forgetPassword.jsx";
@@ -14,7 +14,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -24,7 +24,7 @@ createRoot(document.getElementById("root")).render(
           path="/home/:id"
           element={
             <PrivateRoute>
-              <Home />
+              <OnlineJudge />
             </PrivateRoute>
           }
         />

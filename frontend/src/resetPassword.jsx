@@ -14,7 +14,7 @@ export default function ResetPassword() {
   const handleReset = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3333/reset-password", {
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/password/reset-password`, {
         token,
         newPassword: newPassword
       });

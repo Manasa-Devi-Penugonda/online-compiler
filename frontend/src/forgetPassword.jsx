@@ -1,6 +1,5 @@
 import { useState } from "react";
 import axios from "axios";
-
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -11,7 +10,7 @@ export default function ForgotPassword() {
     setLoading(true); // Show loader
     setMessage(""); // Reset message
     try {
-      const res = await axios.post("http://localhost:3333/forgot-password", { email });
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/password/forgot-password`, { email });
       setMessage(res.data.message);
     } catch (err) {
       setMessage("Something went wrong");
