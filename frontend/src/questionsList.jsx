@@ -24,7 +24,7 @@ export default function QuestionsList() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
+    <div className="questions-page min-h-screen py-10 px-4">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold text-center mb-8">Questions</h1>
         <div className="bg-white shadow-md rounded-lg p-6 space-y-4">
