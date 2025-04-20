@@ -13,18 +13,20 @@ export default function Register() {
   const submitRegistration = async (e) => {
     e.preventDefault();
     try {
-      console.log("CONFIG.apiBaseUrl",import.meta.env.VITE_BACKEND_URL)
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/auth/register`, formData);
       if (response.status === 200) {
         alert("Registration successful! Please login.");
         navigate("/login");
-      } else {
-        console.error("Registration failed.");
       }
     } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        alert(err.response.data.error); // show error like "User already exists"
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
       console.error("Error submitting form:", err);
     }
-  };
+  };  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
