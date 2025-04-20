@@ -43,6 +43,15 @@ function OnlineJudge() {
     }
   }, [language]);
 
+  useEffect(() => {
+    setSubmitResult(null);
+  }, [language]);
+  
+  useEffect(() => {
+    setSubmitResult(null); 
+  }, [code]);
+  
+
   const runUserCode = async (inputVal) => {
     try {
       const payload = {
