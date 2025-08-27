@@ -168,7 +168,7 @@ function OnlineJudge() {
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="border border-gray-300 rounded px-2 py-1"
+                className="border border-gray-300 rounded px-2 py-1 cursor-pointer"
               >
                 <option value="python">Python</option>
                 <option value="javascript">JavaScript</option>
@@ -201,7 +201,7 @@ function OnlineJudge() {
             <button
               onClick={handleRun}
               disabled={isRunning}
-              className={`flex-1 py-2 rounded text-white ${
+              className={`flex-1 py-2 rounded text-white cursor-pointer ${
                 isRunning ? "bg-blue-300" : "bg-blue-500 hover:bg-blue-600"
               }`}
             >
@@ -211,7 +211,7 @@ function OnlineJudge() {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className={`flex-1 py-2 rounded text-white ${
+              className={`flex-1 py-2 rounded text-white cursor-pointer ${
                 isSubmitting ? "bg-green-300" : "bg-green-500 hover:bg-green-600"
               }`}
             >

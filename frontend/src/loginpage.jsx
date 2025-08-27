@@ -84,7 +84,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => navigate("/forgot-password")}
-                    className="font-semibold text-indigo-600 hover:text-indigo-500"
+                    className="font-semibold text-indigo-600 hover:text-indigo-500 cursor-pointer"
                   >
                     Forgot password?
                   </button>
@@ -120,7 +120,7 @@ export default function Login() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-white hover:bg-indigo-500"
+                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-white hover:bg-indigo-500 cursor-pointer"
               >
                 Sign in
               </button>
